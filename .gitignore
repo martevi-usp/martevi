@@ -1,0 +1,12 @@
+# backend/ and frontend/ are their own git repos, destined to become real
+# git submodules once they have remotes. Until then, this repo ignores
+# them entirely rather than tracking them as ordinary (or embedded) repo
+# content. See .claude/CLAUDE.md for the migration steps.
+/backend/
+/frontend/
+
+.env
+.env.*
+!.env.example
+
+.DS_Store

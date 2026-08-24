@@ -1,0 +1,44 @@
+# Integration-level CI for the martevi orchestration repo. Per-service
+# lint/test/build lives in backend/.github/workflows/ci.yml and
+# frontend/.github/workflows/ci.yml — this workflow only validates that the
+# two fit together (compose file is valid, both images build and the stack
+# comes up).
+#
+# NOTE: backend/ and frontend/ aren't wired as real git submodules yet (see
+# .claude/CLAUDE.md). Once .gitmodules exists, add
+# `submodules: recursive` to the checkout step below.
+
+name: martevi integration CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  compose-smoke-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        # with:
+        #   submodules: recursive
+
+      - name: Validate compose file
+        run: docker compose config
+
+      - name: Build both images
+        run: docker compose build
+
+      - name: Bring the stack up and smoke-test it
+        run: |
+          docker compose up -d
+          for i in $(seq 1 30); do
+            curl -sf http://localhost:${BACKEND_PORT:-8000}/docs > /dev/null && break
+            sleep 2
+          done
+          curl -sf http://localhost:${BACKEND_PORT:-8000}/docs
+          docker compose logs
+
+      - name: Tear down
+        if: always()
+        run: docker compose down -v

@@ -1,0 +1,36 @@
+# Local dev orchestration for martevi. Builds backend/ and frontend/ with
+# their `dev` Docker targets (reload/HMR) and bind-mounts source for live
+# editing. Not meant for production — see each service's README for how to
+# build/run the `production` target instead.
+#
+# Usage:
+#   cp .env.example .env   # once
+#   docker compose up --build
+
+services:
+  backend:
+    build:
+      context: ./backend
+      target: dev
+    ports:
+      - "${BACKEND_PORT:-8000}:8000"
+    volumes:
+      - ./backend/martevi:/app
+    env_file:
+      - .env
+    environment:
+      PYTHONUNBUFFERED: "1"
+
+  frontend:
+    build:
+      context: ./frontend
+      target: dev
+    ports:
+      - "${FRONTEND_PORT:-5173}:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      VITE_API_URL: ${VITE_API_URL:-http://localhost:8000}
+    depends_on:
+      - backend
