@@ -19,6 +19,9 @@ jobs:
         with:
           submodules: recursive
 
+      - name: Set up .env
+        run: cp .env.example .env
+
       - name: Validate compose file
         run: docker compose config
 
