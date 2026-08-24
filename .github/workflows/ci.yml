@@ -4,9 +4,9 @@
 # two fit together (compose file is valid, both images build and the stack
 # comes up).
 #
-# NOTE: backend/ and frontend/ aren't wired as real git submodules yet (see
-# .claude/CLAUDE.md). Once .gitmodules exists, add
-# `submodules: recursive` to the checkout step below.
+# NOTE: backend/ and frontend/ aren't wired as real git submodules yet.
+# Once .gitmodules exists, add `submodules: recursive` to the checkout
+# step below.
 
 name: martevi integration CI
 

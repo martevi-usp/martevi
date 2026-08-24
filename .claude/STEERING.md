@@ -71,7 +71,7 @@ deliberately dropped for this build).
 
 See **`STYLE.md`** for the full system — every color's semantic role, the
 type scale, the dark exception zones, responsive breakpoints — and
-`frontend/src/theme.ts` for where it's actually implemented as an MUI theme.
+`../frontend/src/theme.ts` for where it's actually implemented as an MUI theme.
 If a value disagrees between the two, `STYLE.md` is right; fix the theme.
 
 ---

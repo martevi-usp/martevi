@@ -1,9 +1,18 @@
 # martevi — devops steering
 
-Companion to the root `STEERING.md` (product rules) and `STYLE.md` (design
-system). This file covers infrastructure: how the three repos relate, how
-to run things locally, and what CI expects. Read it before touching
-`docker-compose.yml`, any `Dockerfile`, or a `.github/workflows/*.yml`.
+Companion to `STEERING.md` (product rules) and `STYLE.md` (design system),
+both alongside this file in `.claude/`. This file covers infrastructure: how
+the three repos relate, how to run things locally, and what CI expects.
+Read it before touching `docker-compose.yml`, any `Dockerfile`, or a
+`.github/workflows/*.yml`.
+
+**Convention: steering stays out of everyone else's way.** Nothing outside
+`.claude/` — no README, no source comment, no CI file, no Dockerfile —
+should reference `OVERVIEW.md`, `STEERING.md`, `STYLE.md`, or this file by
+path. `.claude/` is treated as local-only and shouldn't become something a
+README or a build step depends on. If you're tempted to add "see
+`.claude/STEERING.md`" to a README, don't — steering docs may reference
+non-steering files freely, but not the other way around.
 
 ---
 
@@ -12,13 +21,16 @@ to run things locally, and what CI expects. Read it before touching
 Three repos, not one monorepo:
 
 - **`martevi/`** (this one) — orchestration only. `docker-compose.yml`,
-  `.env.example`, `Makefile`, this steering doc, and the product docs
-  (`OVERVIEW.md`, `STEERING.md`, `STYLE.md`). No application code.
+  `.env.example`, `Makefile`, and — under `.claude/` — this steering doc
+  plus the product docs (`OVERVIEW.md`, `STEERING.md`, `STYLE.md`). No
+  application code.
 - **`backend/`** — FastAPI, own repo. The actual Python project (per
   fastapi-gen's scaffold) lives one level down at `backend/martevi/`
-  (`pyproject.toml`, `main.py`, the importable `martevi` package). That
-  double nesting is intentional, not a bug — don't try to flatten it without
-  updating the Dockerfile, CI workflow, and this doc together.
+  (`pyproject.toml`, `main.py`). The importable `martevi` package itself
+  lives one level further, at `backend/martevi/src/martevi/` (src-layout).
+  That nesting is intentional, not a bug — don't try to flatten it without
+  updating `pyproject.toml`'s `packages` setting, the Dockerfile, the CI
+  workflow, and this doc together.
 - **`frontend/`** — React + TypeScript + Vite + MUI, own repo, repo root is
   the project root (no extra nesting).
 

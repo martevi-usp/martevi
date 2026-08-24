@@ -1,22 +1,18 @@
 # martevi
 
 A collection of virtual museums — artworks from open collection APIs, shown
-at true physical scale. See `OVERVIEW.md` for the product pitch,
-`STEERING.md` for the rules, `STYLE.md` for the design system, and
-`.claude/CLAUDE.md` for how this repo, `backend/`, and `frontend/` fit
-together operationally.
+at true physical scale.
 
 This is the orchestration repo: it doesn't contain application code itself,
 just what wires `backend/` and `frontend/` together for local dev
-(`docker-compose.yml`), plus the shared product/devops steering docs.
+(`docker-compose.yml`).
 
 ## Repo layout
 
 ```
-martevi/            this repo — orchestration + steering, no app code
+martevi/            this repo — orchestration only, no app code
   backend/           FastAPI service — own git repo (see backend/README.md)
   frontend/          React + TS + Vite + MUI — own git repo (see frontend/README.md)
-  .claude/           devops/infra steering for Claude Code sessions
   docker-compose.yml  wires backend + frontend together for local dev
 ```
 

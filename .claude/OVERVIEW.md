@@ -1,7 +1,7 @@
 # martevi — project overview
 
-*A three-minute read. `README.md` (once one exists) will be the manual;
-`STEERING.md` is the rules; this is the vision.*
+*A three-minute read. `README.md` is the manual; `STEERING.md` is the rules;
+this is the vision.*
 
 This is the production build of the product prototyped in the sibling
 `salas/` repo. Everything below describing the product itself is carried
@@ -47,7 +47,7 @@ Open Access API — eleven million CC0 records across twenty-one units, with
 real photographs, entered by search rather than a department tree.
 
 **Built here so far: the frontend scaffold and its theme.** React +
-TypeScript on Vite, MUI as the component library, and `frontend/src/theme.ts`
+TypeScript on Vite, MUI as the component library, and `../frontend/src/theme.ts`
 implementing the full "paper and ink" design system (see `STYLE.md`) as an
 MUI theme — palette, type scale, one shared easing curve, hairline-flavored
 overrides on the components MUI would otherwise render with Material's
@@ -104,15 +104,16 @@ New, specific to this build:
 ## Files
 
 ```
-STEERING.md        rules and settled decisions
-OVERVIEW.md         this file
-STYLE.md            the design system, in full — colors, type, motion, shape
+.claude/
+  STEERING.md       rules and settled decisions
+  OVERVIEW.md        this file
+  STYLE.md           the design system, in full — colors, type, motion, shape
 frontend/           React + TypeScript + MUI, Vite. Scaffold + theme only so far
 backend/            not started
 ```
 
 ```
-../salas/                  the working prototype — sibling repo, same family
+../../salas/               the working prototype — sibling repo, same family
   salas.html, app.js       vanilla JS, no build — full six-screen implementation
   platform/frontend/       earlier Angular attempt at this same rewrite (superseded)
   platform/backend/        NestJS sketch — starting point for backend/ here

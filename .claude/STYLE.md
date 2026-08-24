@@ -11,7 +11,7 @@ borders, never from boxes, shadows, or color blocks — except inside the
 three deliberately different zones (the 3D room, the artwork stage, the
 loupe) where the site briefly becomes a dark gallery instead of a page.
 
-This document describes the system in the abstract; **`frontend/src/theme.ts`**
+This document describes the system in the abstract; **`../frontend/src/theme.ts`**
 is where it's actually implemented, as an MUI theme. The tokens below were
 first validated in the sibling `salas/` repo's prototype (`salas.html`'s
 `:root`) — that remains useful background on *why* each value is what it is,
