@@ -16,10 +16,8 @@ martevi/            this repo — orchestration only, no app code
   docker-compose.yml  wires backend + frontend together for local dev
 ```
 
-`backend/` and `frontend/` are meant to become real git submodules of this
-repo once each has a remote to point at. Until then they're independent
-local git repos that this repo's `.gitignore` deliberately excludes — see
-**Submodules** below for the current state and how to graduate them.
+`backend/` and `frontend/` are real git submodules of this repo — see
+**Submodules** below for how to clone and update them.
 
 ## Quickstart
 
@@ -36,39 +34,36 @@ Or run each service natively without Docker — see `backend/README.md` and
 `frontend/README.md`.
 
 A `Makefile` wraps the common commands: `make up`, `make down`, `make logs`,
-`make backend-shell`, `make frontend-shell`, `make test`.
+`make backend-shell`, `make frontend-shell`, `make test`,
+`make submodules-update`.
 
 ## Submodules
 
-**Current state:** `backend/` and `frontend/` are each their own local git
-repo (`git init`'d, not yet pushed anywhere). This repo's `.gitignore`
-excludes both paths so the parent repo stays clean in the meantime —
-there's no `.gitmodules` yet.
+`backend/` and `frontend/` are real git submodules, tracked via
+`.gitmodules`:
 
-**Once each has a remote** (GitHub or otherwise):
-
-```bash
-# from a fresh clone of the remote, for each of backend/ and frontend/:
-git remote add origin <url>
-git push -u origin main
-
-# back in martevi/, swap the .gitignore exclusion for a real submodule:
-git rm -r --cached backend  # only if it was ever accidentally tracked; usually a no-op
-rm -rf backend
-git submodule add <backend-url> backend
-# repeat for frontend
-
-# then remove the /backend/ and /frontend/ lines from .gitignore
+```
+backend  -> git@github.com:Martvi-USP/backend.git
+frontend -> git@github.com:Martvi-USP/frontend.git
 ```
 
-After that, clone the whole project with:
+Clone the whole project with:
 
 ```bash
 git clone --recurse-submodules <martevi-url>
 ```
 
-and uncomment the `submodules: recursive` line in
-`.github/workflows/ci.yml`.
+If you already have a clone without submodules initialized:
+
+```bash
+git submodule update --init --recursive
+```
+
+To pull each submodule's `main` branch to its latest commit, use
+`make submodules-update` (wraps `git submodule update --init --remote
+--merge`). Submodule pointers only move in the parent repo when you commit
+the resulting change under `backend`/`frontend` in `git status` — running
+the make target alone doesn't commit anything.
 
 ## CI
 

@@ -25,22 +25,21 @@ Three repos, not one monorepo:
   plus the product docs (`OVERVIEW.md`, `STEERING.md`, `STYLE.md`). No
   application code.
 - **`backend/`** — FastAPI, own repo. The actual Python project (per
-  fastapi-gen's scaffold) lives one level down at `backend/martevi/`
+  fastapi-gen's scaffold) lives one level down at `backend/src/`
   (`pyproject.toml`, `main.py`). The importable `martevi` package itself
-  lives one level further, at `backend/martevi/src/martevi/` (src-layout).
+  lives one level further, at `backend/src/martevi/` (src-layout).
   That nesting is intentional, not a bug — don't try to flatten it without
   updating `pyproject.toml`'s `packages` setting, the Dockerfile, the CI
   workflow, and this doc together.
 - **`frontend/`** — React + TypeScript + Vite + MUI, own repo, repo root is
   the project root (no extra nesting).
 
-**Current state (as of the initial devops setup): local-only.**
-`backend/` and `frontend/` are `git init`'d but have no remotes yet, and
-`martevi/`'s `.gitignore` excludes both paths so the parent repo doesn't
-try to track them as embedded content. There is no `.gitmodules`. The root
-`README.md`'s **Submodules** section has the exact steps for wiring them up
-for real once each has a remote — do that migration there, not by
-improvising a different structure here.
+**Current state: wired up as real git submodules.** `backend/` and
+`frontend/` each have a GitHub remote and are tracked via `.gitmodules`;
+`martevi/`'s `.gitignore` no longer excludes them. Clone with
+`git clone --recurse-submodules`, and use `make submodules-update` to pull
+each submodule's `main` to its latest commit. The root `README.md`'s
+**Submodules** section has the details.
 
 Don't add backend/frontend code to git tracking *inside* the martevi repo.
 If you need to reference something from one repo while working in another,

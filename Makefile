@@ -1,4 +1,4 @@
-.PHONY: up down build logs backend-shell frontend-shell test test-docker lint clean
+.PHONY: up down build logs backend-shell frontend-shell test test-docker lint clean submodules-update
 
 up: ## start backend + frontend (dev, with reload/HMR)
 	docker compose up --build
@@ -19,8 +19,11 @@ frontend-shell: ## shell into the running frontend container
 	docker compose exec frontend sh
 
 test: ## run backend + frontend test/lint suites locally (no docker)
-	cd backend/martevi && pytest -q
+	cd backend/src && pytest -q
 	cd frontend && npm run lint && npx tsc -b --noEmit
+
+submodules-update: ## pull backend/ and frontend/ each to their latest main
+	git submodule update --init --remote --merge
 
 test-docker: ## run backend + frontend test/lint suites inside the running containers (requires `make up` first)
 	docker compose exec backend pytest -q

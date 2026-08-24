@@ -4,10 +4,6 @@
 # two fit together (compose file is valid, both images build and the stack
 # comes up).
 #
-# NOTE: backend/ and frontend/ aren't wired as real git submodules yet.
-# Once .gitmodules exists, add `submodules: recursive` to the checkout
-# step below.
-
 name: martevi integration CI
 
 on:
@@ -20,8 +16,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        # with:
-        #   submodules: recursive
+        with:
+          submodules: recursive
 
       - name: Validate compose file
         run: docker compose config
