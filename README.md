@@ -43,8 +43,8 @@ A `Makefile` wraps the common commands: `make up`, `make down`, `make logs`,
 `.gitmodules`:
 
 ```
-backend  -> git@github.com:Martvi-USP/backend.git
-frontend -> git@github.com:Martvi-USP/frontend.git
+backend  -> git@github.com:martevi-usp/backend.git
+frontend -> git@github.com:martevi-usp/frontend.git
 ```
 
 Clone the whole project with:

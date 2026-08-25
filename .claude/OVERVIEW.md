@@ -3,12 +3,12 @@
 *A three-minute read. `README.md` is the manual; `STEERING.md` is the rules;
 this is the vision.*
 
-This is the production build of the product prototyped in the sibling
-`salas/` repo. Everything below describing the product itself is carried
-over unchanged from `salas/OVERVIEW.md` — the idea, the problem, the four
-things worth keeping — because none of that changed when the stack did.
-What's marked **built here** vs. **proven in the prototype** is the part
-that's new to this document.
+This is the production build of a product that was proven out in an
+earlier prototype. Everything below describing the product itself — the
+idea, the problem, the four things worth keeping — carries over unchanged,
+because none of that changed when the stack did. What's marked
+**built here** vs. **proven in the prototype** is the part that's new to
+this document.
 
 ---
 
@@ -34,11 +34,11 @@ a room — is the first thing the internet throws away.
 
 **Six screens, proven in the prototype, not yet built here.** Home, Atrium,
 Museum, Room, Detail, Tours — plus Search and Artist for the fictional
-museum. `salas/salas.html` + `app.js` is a fully working, no-build
-implementation of all of them; `salas/platform/frontend` is an earlier,
-partial Angular port of the same six screens (superseded — this repo is
-React instead). Neither is what ships; both are references for exactly how
-each screen should look and behave once it's rebuilt here.
+museum. The prototype is a fully working, no-build vanilla-JS
+implementation of all of them; an earlier, partial Angular port of the same
+six screens exists too (superseded — this repo is React instead). Neither
+is what ships; both are references for exactly how each screen should look
+and behave once it's rebuilt here.
 
 **Five museums, proven.** Four real ones, browsable because they publish an
 open API: The Met, the Art Institute of Chicago, Harvard Art Museums, the
@@ -53,11 +53,10 @@ MUI theme — palette, type scale, one shared easing curve, hairline-flavored
 overrides on the components MUI would otherwise render with Material's
 elevation/shadow language. No routing or screens yet.
 
-**Not started: the backend.** `salas/platform/backend` sketches a NestJS
-shape — an abstract `MuseumProvider`, five concrete adapters, a caching
-layer — that answers the prototype's biggest real gap (API keys client-side,
-no way to blunt the Smithsonian `DEMO_KEY` throttle). Worth reusing as a
-starting point.
+**Not started: the backend.** The prototype's biggest real gap was no
+backend — API keys client-side, no way to blunt the Smithsonian `DEMO_KEY`
+throttle. An abstract `MuseumProvider` with five concrete adapters and a
+caching layer is the shape worth building to close it.
 
 ## The four ideas worth keeping
 
@@ -70,10 +69,10 @@ markers. It gives scale and life to the room without representing any
 particular visitor.
 
 **3 · Photograph → drawing.** The prototype's building sketches come from a
-generator (`salas/gerar_predio.py`) that separates sky from architecture by
-local standard deviation, then squares up the roofline and snaps interior
-lines onto shared axes. Not yet ported here; still worth understanding
-before rebuilding the atrium cards.
+generator that separates sky from architecture by local standard deviation,
+then squares up the roofline and snaps interior lines onto shared axes. Not
+yet ported here; still worth understanding before rebuilding the atrium
+cards.
 
 **4 · One adapter, many providers.** Everything provider-specific stays
 behind a single boundary. Changing collections should mean rewriting one
@@ -94,7 +93,7 @@ Carried over from the prototype, still open:
 
 New, specific to this build:
 
-- How much of `salas/platform/backend`'s NestJS sketch gets reused vs.
+- How much of the prototype's NestJS backend sketch gets reused vs.
   redesigned once real requirements (auth, caching strategy, deployment
   target) are settled?
 - What's the actual component/screen breakdown for the React port — does it
@@ -110,13 +109,6 @@ New, specific to this build:
   STYLE.md           the design system, in full — colors, type, motion, shape
 frontend/           React + TypeScript + MUI, Vite. Scaffold + theme only so far
 backend/            not started
-```
-
-```
-../../salas/               the working prototype — sibling repo, same family
-  salas.html, app.js       vanilla JS, no build — full six-screen implementation
-  platform/frontend/       earlier Angular attempt at this same rewrite (superseded)
-  platform/backend/        NestJS sketch — starting point for backend/ here
 ```
 
 *Interface copy is Brazilian Portuguese; code and documentation are English.*

@@ -3,13 +3,13 @@
 Read this before changing anything. It is the short version of decisions
 already made, so they don't get re-litigated by accident.
 
-This is the production build. The working reference is the vanilla-JS
-prototype in the sibling `salas/` repo (`salas.html` + `app.js`) — it stays
-the source of truth for the visual system and product decisions until a
-screen is actually ported here. `salas/platform/frontend` also holds an
-earlier Angular attempt at this same rewrite (abandoned in favor of React —
-see below); its `room`/`mascot` port is worth reading before re-deriving
-that logic from scratch, even though the framework changed.
+This is the production build. An earlier vanilla-JS prototype is the
+working reference — its visual system and product decisions are captured
+in this file and `STYLE.md`, and stay the source of truth until a screen is
+actually ported here. An earlier Angular attempt at this same rewrite was
+abandoned in favor of React (see below); its `room`/`mascot` port logic is
+worth understanding before re-deriving it from scratch, even though the
+framework changed.
 
 ---
 
@@ -84,20 +84,18 @@ theme (palette, typography, one shared easing curve, hairline-flavored
 component overrides on `Paper`/`AppBar`/`Card`/`Button`). Nothing beyond the
 scaffold and the theme exists yet — no routing, no screens.
 
-**`backend/`** — not started. `salas/platform/backend` sketches a NestJS
-shape worth reusing rather than redesigning from zero: an abstract
-`MuseumProvider` with five concrete adapters (Met, Art Institute of Chicago,
-Harvard, Rijksmuseum, Smithsonian), a DI-based registry, and a caching layer
-that answers the prototype's own flagged gap — no backend meant API keys
+**`backend/`** — not started. Build it around an abstract `MuseumProvider`
+with five concrete adapters (Met, Art Institute of Chicago, Harvard,
+Rijksmuseum, Smithsonian), a DI-based registry, and a caching layer — that
+shape answers the prototype's own flagged gap: no backend meant API keys
 client-side and no way to blunt the Smithsonian `DEMO_KEY` throttle.
 
 **Screens, once built:** **home → atrium → museum → room → detail**, plus
 **tours** and, for the fictional museum, **search → artist** — the same
-eight-state flow as the prototype's `S.view` in `app.js`. Keep the room
-driven by one shared context/state shape, so a curated section and a list of
-search results render through the same code path — the way `S.ctx` does in
-the prototype. Don't let that collapse back into two parallel code paths as
-the port proceeds.
+eight-state flow the prototype uses. Keep the room driven by one shared
+context/state shape, so a curated section and a list of search results
+render through the same code path — the way the prototype does it. Don't
+let that collapse back into two parallel code paths as the port proceeds.
 
 **All API-specific code lives behind one adapter**, wherever that lands
 (most likely the backend, once one exists). Swapping a provider should mean
@@ -112,9 +110,9 @@ Museums are in the collection **only if they publish an open API** — that is
 the whole reason the four curated ones are there. Museums with just a guided
 walkthrough go on the tours page and link out. Don't blur the line.
 
-The prototype's seed works (`ACERVO`, `FX_ROWS` in `salas/app.js`) are
-**demo records, not facts** — hand-typed to give the prototype something to
-draw. Don't port them in as if they were verified; go to the live endpoint.
+The prototype's seed works are **demo records, not facts** — hand-typed to
+give the prototype something to draw. Don't port them in as if they were
+verified; go to the live endpoint.
 
 ---
 
@@ -161,9 +159,9 @@ not just a fresh preference.
 ## Building it
 
 There's no harness yet — write one as soon as there's a normalizer or a
-screen worth regression-testing, the way `salas/tests/` does for the
-prototype (`harness.mjs` boots the app under jsdom and walks every screen;
-`live.mjs` feeds the normalizer real API responses).
+screen worth regression-testing, the way the prototype's test suite does
+(one harness boots the app under jsdom and walks every screen; another
+feeds the normalizer real API responses).
 
 **Always verify visually.** Every drawing/layout bug worth naming in the
 prototype's own history — fused legs on the mascot, a roofline like a barn,

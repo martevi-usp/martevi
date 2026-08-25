@@ -13,10 +13,9 @@ loupe) where the site briefly becomes a dark gallery instead of a page.
 
 This document describes the system in the abstract; **`../frontend/src/theme.ts`**
 is where it's actually implemented, as an MUI theme. The tokens below were
-first validated in the sibling `salas/` repo's prototype (`salas.html`'s
-`:root`) — that remains useful background on *why* each value is what it is,
-but the theme file is the living implementation to keep in sync with this
-doc, not the prototype's CSS.
+first validated in an earlier prototype — that history remains useful
+background on *why* each value is what it is, but the theme file is the
+living implementation to keep in sync with this doc.
 
 ---
 
