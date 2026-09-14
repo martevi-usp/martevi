@@ -153,6 +153,14 @@ not just a fresh preference.
   shipping.
 - **The prototype's Harvard seed works are the least certain** of the four
   curated collections — don't treat them as fact when porting.
+- **Translation runs fully offline (Argos Translate, ADR-0002)** — no
+  external service, no rate limit, no SLA to worry about. This replaced the
+  V1 `deep-translator`/MyMemory backend after real fan-out traffic started
+  hitting its unofficial 5 req/s ceiling. The known trade-off now is local:
+  the Docker image is larger (~80MB per language pair) and translation cost
+  is CPU time instead of network latency. Swapping the engine again only
+  touches the `Translator` implementation behind `TranslatingProvider`
+  (ADR-0001), not the provider adapters themselves.
 
 ---
 
