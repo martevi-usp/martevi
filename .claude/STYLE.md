@@ -2,8 +2,9 @@
 
 Companion to `STEERING.md`. That file has an eight-line summary of this;
 this is the long version — read it before touching the theme, adding a
-screen, or skinning a new component. If a rule here and a rule in
-`STEERING.md` disagree, `STEERING.md` wins and this file is out of date.
+screen, or skinning a new component. This file is the reference for token
+values and component styling; if it disagrees with the non-negotiables in
+`STEERING.md`, those win and this file is out of date.
 
 The name for the language is **paper and ink**: a printed page, not an app.
 Structure comes from rules (literal horizontal/vertical lines) and hairline
@@ -11,11 +12,10 @@ borders, never from boxes, shadows, or color blocks — except inside the
 three deliberately different zones (the 3D room, the artwork stage, the
 loupe) where the site briefly becomes a dark gallery instead of a page.
 
-This document describes the system in the abstract; **`../frontend/src/theme.ts`**
-is where it's actually implemented, as an MUI theme. The tokens below were
-first validated in an earlier prototype — that history remains useful
-background on *why* each value is what it is, but the theme file is the
-living implementation to keep in sync with this doc.
+This document describes the system in the abstract; **`frontend/src/theme.ts`**
+is where it's actually implemented, as an MUI theme. Keep the two in sync: if
+a value here and the same value in the theme drift apart, this document is the
+one to trust — fix the theme.
 
 ---
 
@@ -126,8 +126,8 @@ chrome. MUI's `overline` and `caption` variants are mapped to this pattern in
 `theme.ts` — reach for those variants before inventing a one-off `sx` block
 for new micro-label text.
 
-**Sizing is fluid, not fixed.** The prototype sizes nearly every heading with
-CSS `clamp(min, vw, max)` rather than a fixed value or a breakpoint override.
+**Sizing is fluid, not fixed.** Size headings with CSS `clamp(min, vw, max)`
+rather than a fixed value or a breakpoint override.
 MUI's theme typography doesn't have a native fluid-clamp mechanism, so when a
 heading needs this (mastheads, hero numerals), set `fontSize` with an
 explicit `clamp()` string in the component's `sx` rather than picking a
@@ -156,17 +156,16 @@ min-height and the uppercase micro-label text treatment. Don't introduce a
 third button visual language (ghost, tonal, icon-only) without a reason that
 survives the "why not outlined?" question.
 
-**Corner rounding is unconstrained.** The prototype had a hard "nothing is
-rounded" rule; this build deliberately doesn't carry it forward. MUI's
-default `shape.borderRadius` applies unless a specific component earns an
-override — don't reintroduce the old blanket rule from memory.
+**Corner rounding is unconstrained.** There is no "nothing is rounded" rule.
+MUI's default `shape.borderRadius` applies unless a specific component earns
+an override — don't invent a blanket rule from memory.
 
 **Motion is one curve.** `cubic-bezier(.66,0,.25,1)` — a slow start, fast
 middle, gentle landing — is wired into `theme.transitions.easing` in
 `theme.ts` (overriding `easeInOut`/`easeOut`/`easeIn`/`sharp` uniformly), so
 MUI's own transition-driven components (`Fade`, `Collapse`, `Grow`) inherit
-it for free. Durations run long by the prototype's example — `.3s`–`.9s`,
-some builds/animations up to `1.7s` — nothing on this site snaps; a
+it for free. Durations run long — `.3s`–`.9s`, some builds/animations up to
+`1.7s` — nothing on this site snaps; a
 hand-rolled transition should land in that range rather than a UI-standard
 150–200ms. Everything with a duration must keep working under
 `prefers-reduced-motion` — MUI respects this by default for its own
@@ -176,12 +175,14 @@ transitions; verify any custom CSS animation does too.
 
 ## Responsive
 
-The prototype uses three breakpoints — roughly 1100px (detail-view column
-ratio), 860px (tablet), 640px (phone) — all adjusting layout rather than
-introducing new visual language, plus a 640px+landscape case for the detail
-view specifically. Map these onto MUI's breakpoint system (`sm`/`md`/`lg`)
-rather than hand-rolling new pixel values; a 44px minimum touch target and
-`prefers-reduced-motion` apply at every width.
+Design for three breakpoints — roughly 1100px (detail-view column ratio),
+860px (tablet), 640px (phone) — all adjusting layout rather than introducing
+new visual language, plus a 640px+landscape case for the detail view
+specifically. Map these onto MUI's breakpoint system (`sm`/`md`/`lg`) rather
+than hand-rolling new pixel values; a 44px minimum touch target and
+`prefers-reduced-motion` apply at every width. (The jigsaw puzzle is
+self-contained and stacks its wall note below 900px, measured from its own
+surface; that is its own layout rule, not one of these.)
 
 ---
 

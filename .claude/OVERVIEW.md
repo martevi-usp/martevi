@@ -1,14 +1,8 @@
 # martevi — project overview
 
 *A three-minute read. `README.md` is the manual; `STEERING.md` is the rules;
-this is the vision.*
-
-This is the production build of a product that was proven out in an
-earlier prototype. Everything below describing the product itself — the
-idea, the problem, the four things worth keeping — carries over unchanged,
-because none of that changed when the stack did. What's marked
-**built here** vs. **proven in the prototype** is the part that's new to
-this document.
+this is the vision. The "what exists" section describes the state as of
+2026-09-20, including backend decisions 0001–0006 in `backend/docs/adr/`.*
 
 ---
 
@@ -30,33 +24,42 @@ off. And when you do look it up online, every work arrives the same size:
 rectangles on a screen. The scale — which is most of what a painting *is* in
 a room — is the first thing the internet throws away.
 
-## What's proven, what's built here
+## What exists, what's planned
 
-**Six screens, proven in the prototype, not yet built here.** Home, Atrium,
-Museum, Room, Detail, Tours — plus Search and Artist for the fictional
-museum. The prototype is a fully working, no-build vanilla-JS
-implementation of all of them; an earlier, partial Angular port of the same
-six screens exists too (superseded — this repo is React instead). Neither
-is what ships; both are references for exactly how each screen should look
-and behave once it's rebuilt here.
+**Backend — built.** A FastAPI service. One `MuseumProvider` interface with
+seven adapters (The Met, Art Institute of Chicago, Cleveland Museum of Art,
+Harvard Art Museums, Rijksmuseum, Smithsonian Open Access, Victoria and
+Albert Museum), each converting that museum's response shape to martevi's
+common schema; a DI-based registry that selects providers at runtime; a
+`TranslatingProvider` decorator so provider text reaches the frontend already
+in Portuguese, using offline Argos Translate; and fan-out search across every
+museum, as one JSON response or streamed over SSE as each museum answers,
+with a per-museum status when one fails. Editorial content no museum API
+provides — 24 puzzles with their wall notes and 36 virtual-tour links — lives
+in a read-only SQLite file built into the image. `GET /health` is the
+liveness probe. Decisions and their reasoning: `backend/docs/adr/`.
 
-**Five museums, proven.** Four real ones, browsable because they publish an
-open API: The Met, the Art Institute of Chicago, Harvard Art Museums, the
-Rijksmuseum. The fifth, fictional *Museu SALAS*, runs on the Smithsonian
-Open Access API — eleven million CC0 records across twenty-one units, with
-real photographs, entered by search rather than a department tree.
+**Frontend — built so far.** React + TypeScript on Vite, MUI as the component
+library, and `frontend/src/theme.ts` implementing the full "paper and ink"
+design system (see `STYLE.md`) as an MUI theme. Two screens, chosen by the
+URL hash: a placeholder home page, and the jigsaw puzzle — pick an artwork,
+reassemble it, and finishing unlocks a wall note about it. The puzzle's
+catalog and notes come from the backend. Opening the app also pings the
+backend so a sleeping free-tier host wakes early.
 
-**Built here so far: the frontend scaffold and its theme.** React +
-TypeScript on Vite, MUI as the component library, and `../frontend/src/theme.ts`
-implementing the full "paper and ink" design system (see `STYLE.md`) as an
-MUI theme — palette, type scale, one shared easing curve, hairline-flavored
-overrides on the components MUI would otherwise render with Material's
-elevation/shadow language. No routing or screens yet.
+**Deployed.** Backend on Google Cloud Run, frontend as static assets on
+Cloudflare Workers (`backend/docs/adr/0006-deploy-cloud-run-and-static-frontend.md`).
 
-**Not started: the backend.** The prototype's biggest real gap was no
-backend — API keys client-side, no way to blunt the Smithsonian `DEMO_KEY`
-throttle. An abstract `MuseumProvider` with five concrete adapters and a
-caching layer is the shape worth building to close it.
+**Planned, not built: the museum experience.** Six screens — Home, Atrium,
+Museum, Room, Detail, Tours — plus Search and Artist for the fictional museum
+below; the 3D room, the mascot and the loupe. The backend already serves what
+most of them need (search, artwork detail, tour links); the frontend does not
+yet.
+
+**The museums.** Real ones, browsable because they publish an open API (the
+seven adapters above). Planned on top of the Smithsonian Open Access API is a
+fictional museum, *Museu SALAS*: CC0 records with real photographs, entered by
+search rather than a department tree.
 
 ## The four ideas worth keeping
 
@@ -68,11 +71,10 @@ a head, one line for everything else. No face, no hair, no gender or skin
 markers. It gives scale and life to the room without representing any
 particular visitor.
 
-**3 · Photograph → drawing.** The prototype's building sketches come from a
-generator that separates sky from architecture by local standard deviation,
-then squares up the roofline and snaps interior lines onto shared axes. Not
-yet ported here; still worth understanding before rebuilding the atrium
-cards.
+**3 · Photograph → drawing.** The atrium's building sketches are meant to be
+generated from photographs: separate sky from architecture by local standard
+deviation, then square up the roofline and snap interior lines onto shared
+axes. Not built yet.
 
 **4 · One adapter, many providers.** Everything provider-specific stays
 behind a single boundary. Changing collections should mean rewriting one
@@ -80,35 +82,37 @@ normalizer function, never touching a view or a component.
 
 ## Open questions
 
-Carried over from the prototype, still open:
-
-- **EDAN dimensions are free text**, format varies by unit — how many works
-  quietly fall through to "não informado" once real traffic hits it?
+- **Smithsonian (EDAN) dimensions are free text**, format varies by unit — how
+  many works quietly fall through to "não informado" once real traffic hits
+  it?
 - **EDAN has no artist records** — is an assembled artist page honest enough,
-  or should that tab go, here?
-- Are the **30 tour links** better as a list, or should the strongest few be
+  or should that tab go?
+- Are the **36 tour links** better as a list, or should the strongest few be
   promoted onto the home page?
-- Does the fictional museum stay fictional, or become the front door once a
-  real search backend is wired up here?
-
-New, specific to this build:
-
-- How much of the prototype's NestJS backend sketch gets reused vs.
-  redesigned once real requirements (auth, caching strategy, deployment
-  target) are settled?
-- What's the actual component/screen breakdown for the React port — does it
-  mirror the prototype's file layout, or does MUI's component model suggest
-  a different split?
+- Does the fictional museum stay fictional, or become the front door once its
+  search is wired up?
+- Should wall notes unlock progressively while a puzzle is being solved, or
+  only on completion? The backend supports both (`unlock_pct`); the frontend
+  does completion only (`frontend/docs/adr/0005-puzzle-content-from-api.md`).
+- What's the component/screen breakdown for the remaining screens — one page
+  per screen with shared room state, or something MUI's component model
+  suggests?
+- A cross-museum search takes roughly 12 to 24 seconds on the free tier's one
+  vCPU (12.5 s measured on the deployed service, 19–24 s locally; translation
+  dominates). Is that acceptable for the demo, or is the extra cost of a
+  second vCPU, or of pre-translating titles, worth paying?
 
 ## Files
 
 ```
 .claude/
-  STEERING.md       rules and settled decisions
-  OVERVIEW.md        this file
+  CLAUDE.md          how the three repos fit together: running, Docker, CI
+  STEERING.md        product rules and settled decisions
   STYLE.md           the design system, in full — colors, type, motion, shape
-frontend/           React + TypeScript + MUI, Vite. Scaffold + theme only so far
-backend/            not started
+  OVERVIEW.md        this file
+  steering/          narrower topics, read on demand
+frontend/           React + TypeScript + MUI, Vite — the puzzle, home, theme
+backend/            FastAPI — providers, translation, search, curated content
 ```
 
 *Interface copy is Brazilian Portuguese; code and documentation are English.*

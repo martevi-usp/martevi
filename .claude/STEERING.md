@@ -3,13 +3,9 @@
 Read this before changing anything. It is the short version of decisions
 already made, so they don't get re-litigated by accident.
 
-This is the production build. An earlier vanilla-JS prototype is the
-working reference — its visual system and product decisions are captured
-in this file and `STYLE.md`, and stay the source of truth until a screen is
-actually ported here. An earlier Angular attempt at this same rewrite was
-abandoned in favor of React (see below); its `room`/`mascot` port logic is
-worth understanding before re-deriving it from scratch, even though the
-framework changed.
+Decisions with a longer reasoning live as ADRs in `backend/docs/adr/` and
+`frontend/docs/adr/`; this file only carries the rules those imply. The visual
+system is captured here and, in full, in `STYLE.md`.
 
 ---
 
@@ -66,13 +62,13 @@ loupe (which get their own dark, physical treatment — see `STYLE.md`). Section
 heads are hairline underlines; the hero is a masthead with a double rule.
 Motion is slow and eased (`cubic-bezier(.66,0,.25,1)`), and honours
 `prefers-reduced-motion`. Corner rounding is unconstrained — MUI's defaults
-apply; there is no house rule against it here (there was, in the prototype —
-deliberately dropped for this build).
+apply; there is no house rule against it.
 
 See **`STYLE.md`** for the full system — every color's semantic role, the
 type scale, the dark exception zones, responsive breakpoints — and
-`../frontend/src/theme.ts` for where it's actually implemented as an MUI theme.
-If a value disagrees between the two, `STYLE.md` is right; fix the theme.
+`frontend/src/theme.ts` for where it's actually implemented as an MUI theme.
+If a token value disagrees between the two, `STYLE.md` is right; fix the
+theme. The non-negotiables above win over anything in either.
 
 ---
 
@@ -80,47 +76,57 @@ If a value disagrees between the two, `STYLE.md` is right; fix the theme.
 
 **`frontend/`** — React + TypeScript, scaffolded with Vite, MUI as the
 component library. `src/theme.ts` carries the full design system as an MUI
-theme (palette, typography, one shared easing curve, hairline-flavored
-component overrides on `Paper`/`AppBar`/`Card`/`Button`). Nothing beyond the
-scaffold and the theme exists yet — no routing, no screens.
+theme. Two screens exist, chosen by the URL hash (`src/routes.ts`): a
+placeholder home page and the jigsaw puzzle. The puzzle's logic is pure
+functions in `src/components/` (geometry, rules); only `src/pages/` touches
+React. Its catalog and wall notes come from the backend (`src/api/`), never
+hardcoded.
 
-**`backend/`** — not started. Build it around an abstract `MuseumProvider`
-with five concrete adapters (Met, Art Institute of Chicago, Harvard,
-Rijksmuseum, Smithsonian), a DI-based registry, and a caching layer — that
-shape answers the prototype's own flagged gap: no backend meant API keys
-client-side and no way to blunt the Smithsonian `DEMO_KEY` throttle.
+**`backend/`** — FastAPI. An abstract `MuseumProvider` with seven adapters
+(Met, Art Institute of Chicago, Cleveland, Harvard, Rijksmuseum, Smithsonian,
+V&A), a DI-based registry, and a `TranslatingProvider` decorator that
+translates provider text to Portuguese with offline Argos Translate.
+Cross-museum search fans out to every provider and reports a per-provider
+status, so one slow or failing museum never fails the request. Curated
+content that no museum API provides (puzzles, wall notes, tour links) is a
+read-only SQLite file built into the image — the application reads and never
+writes.
 
 **Screens, once built:** **home → atrium → museum → room → detail**, plus
-**tours** and, for the fictional museum, **search → artist** — the same
-eight-state flow the prototype uses. Keep the room driven by one shared
-context/state shape, so a curated section and a list of search results
-render through the same code path — the way the prototype does it. Don't
-let that collapse back into two parallel code paths as the port proceeds.
+**tours** and, for the fictional museum, **search → artist** — an eight-state
+flow. Keep the room driven by one shared context/state shape, so a curated
+section and a list of search results render through the same code path. Don't
+let that collapse into two parallel code paths as the screens are built.
 
-**All API-specific code lives behind one adapter**, wherever that lands
-(most likely the backend, once one exists). Swapping a provider should mean
-rewriting one normalizer function and nothing else. If provider details
-start leaking into components, stop and put them back.
+**All API-specific code lives behind one adapter**, in the backend. Swapping a
+provider should mean rewriting one normalizer function and nothing else. If
+provider details start leaking into components, stop and put them back.
+
+**Hosting.** Backend on Google Cloud Run, frontend as static assets on
+Cloudflare Workers, each deployed by its own repo's workflow
+(`backend/docs/adr/0006-deploy-cloud-run-and-static-frontend.md`).
 
 ---
 
 ## Data rules
 
 Museums are in the collection **only if they publish an open API** — that is
-the whole reason the four curated ones are there. Museums with just a guided
+the whole reason the museums in the backend's registry are there. Museums with just a guided
 walkthrough go on the tours page and link out. Don't blur the line.
 
-The prototype's seed works are **demo records, not facts** — hand-typed to
-give the prototype something to draw. Don't port them in as if they were
-verified; go to the live endpoint.
+Hand-typed demo records are **not facts**. Anything shown as a real artwork
+comes from a museum's live endpoint; curated content (puzzle catalog, wall
+notes, tour links) carries its own provenance — `rights`, and a `verified`
+flag for images — and a record that hasn't been checked says so rather than
+passing as authoritative.
 
 ---
 
 ## Settled — don't reopen
 
-Carried over from the prototype, where each of these was tried both ways and
-one won. Re-open only if you have a concrete reason the context has changed —
-not just a fresh preference.
+Each of these was tried both ways during design and one won. Re-open only if
+you have a concrete reason the context has changed — not just a fresh
+preference.
 
 | Decision | Why |
 |---|---|
@@ -139,40 +145,54 @@ not just a fresh preference.
 ## Known risks
 
 - **The Smithsonian `DEMO_KEY` is throttled**, to roughly 30 requests an hour
-  per IP. A free personal key from api.data.gov lifts it to 1.000/hour; the
-  backend's caching layer is the other half of the answer.
+  per IP. The backend uses `SMITHSONIAN_API_KEY` when set and falls back to
+  `DEMO_KEY`; a free key from api.data.gov lifts it to 1,000 an hour. Provider
+  responses are not cached yet (only translations are), so a cache is the
+  other half of the answer.
+- **Harvard needs a key** (`HARVARD_API_KEY`, free, non-commercial signup);
+  without it Harvard's requests fail and it shows up as a failed museum in the
+  search's per-provider status, while the other museums still answer.
 - **EDAN dimensions are free text**, and the format varies by unit. The
-  prototype's `cmDe()` covers the shapes seen so far and returns `null` for
-  the rest — every new unit is a chance for it to be wrong; add a test case
-  before trusting a new one.
+  backend's dimension parser (`backend/src/martevi/providers/_internal/dimensions.py`)
+  covers the shapes seen so far and returns `None` for the rest — every new
+  unit is a chance for it to be wrong; add a case to
+  `backend/src/tests/test_dimensions.py` before trusting a new one.
 - **EDAN has no artist records.** No biography, no birthplace, nothing. Any
   artist page is assembled from the makers named on artworks and must say so.
   Do not paper over that with invented copy.
 - **Tour URLs are unverified.** Compiled from a São Paulo education
-  department's list; museums retire these pages constantly. Re-check before
-  shipping.
-- **The prototype's Harvard seed works are the least certain** of the four
-  curated collections — don't treat them as fact when porting.
-- **Translation runs fully offline (Argos Translate, ADR-0002)** — no
-  external service, no rate limit, no SLA to worry about. This replaced the
-  V1 `deep-translator`/MyMemory backend after real fan-out traffic started
-  hitting its unofficial 5 req/s ceiling. The known trade-off now is local:
-  the Docker image is larger (~80MB per language pair) and translation cost
-  is CPU time instead of network latency. Swapping the engine again only
-  touches the `Translator` implementation behind `TranslatingProvider`
-  (ADR-0001), not the provider adapters themselves.
+  department's list and Google Arts & Culture's Museum Views
+  (`backend/db/seed/tours.toml`); museums retire these pages constantly.
+  Re-check before relying on them.
+- **Translation runs fully offline (Argos Translate, backend ADR-0002 and
+  ADR-0005)** — no external service, no rate limit, no SLA to worry about. It
+  replaced the first, network-backed translator after real fan-out traffic hit
+  its unofficial 5 req/s ceiling. The trade-offs are local: about 80 MB of
+  model per language pair on disk, roughly 800 MB resident on x86 with both
+  loaded, and translation cost is CPU time instead of network latency.
+  Swapping the engine again only touches the `Translator` implementation
+  behind `TranslatingProvider`.
+- **Content is read-only at runtime** (backend ADR-0004): changing a puzzle,
+  wall note or tour link means editing the seed files and redeploying. The
+  wall-note endpoint withholds text until told the puzzle is solved, but the
+  client reports its own progress, so that is a courtesy against casual
+  spoilers, not a guarantee.
+- **Hosting is a free tier with limits** (backend ADR-0006): Google requires a
+  billing account for Cloud Run's free quota, the backend sleeps when idle and
+  wakes on the first request (the frontend pings `/health` on load to hide
+  part of that), and one vCPU makes a cross-museum search take on the order of
+  ten to twenty-five seconds.
 
 ---
 
 ## Building it
 
-There's no harness yet — write one as soon as there's a normalizer or a
-screen worth regression-testing, the way the prototype's test suite does
-(one harness boots the app under jsdom and walks every screen; another
-feeds the normalizer real API responses).
+Both repos have unit tests (`pytest` in the backend, Vitest in the frontend);
+see each repo's README. There is no browser-level suite. As
+screens are built, add a harness that walks them under jsdom and one that
+feeds the normalizers real API responses.
 
-**Always verify visually.** Every drawing/layout bug worth naming in the
-prototype's own history — fused legs on the mascot, a roofline like a barn,
-a masonry grid that reflowed under the cursor — was found by rendering and
-looking, never by reading the code. Screenshot new screens before calling
-them done.
+**Always verify visually.** The drawing and layout bugs worth naming — fused
+legs on the mascot, a roofline like a barn, a masonry grid that reflowed under
+the cursor — were found by rendering and looking, never by reading the code.
+Screenshot new screens before calling them done.
